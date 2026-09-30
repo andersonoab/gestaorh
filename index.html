@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapa de Atividades do Departamento Pessoal · Sonova</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rufina:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style id="pagestyle">@page{size:A3 landscape;margin:8mm}</style>
+<style>
+:root{
+  --blue:#0083CA; --navy:#003C64; --teal:#005A64; --sky:#6EB4DC; --wine:#7D0041; --rust:#8C321E;
+  --txt:#333333; --txt2:#646464; --line:#CCCCCC; --bg:#ffffff; --surf:#ffffff; --thead:#E8F3FA; --thtxt:#003C64;
+  --ok:#2E7D32; --danger:#B3261E; --aux:#E6E6E6;
+  --serif:Rufina, Georgia, "Times New Roman", serif;
+  --sans:Roboto, "Segoe UI", Helvetica, Arial, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --txt:#E6EDF2; --txt2:#AFC0CC; --line:#3A4A56; --bg:#0E1A23; --surf:#15232E; --thead:#1C3344; --thtxt:#CFE6F5; --aux:#2A3A46; }
+}
+:root[data-theme="dark"]{ --txt:#E6EDF2; --txt2:#AFC0CC; --line:#3A4A56; --bg:#0E1A23; --surf:#15232E; --thead:#1C3344; --thtxt:#CFE6F5; --aux:#2A3A46; }
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);font-weight:300;font-size:15px;line-height:1.45}
+button,input,select{font-family:inherit;font-size:14px}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+
+/* ===== Cabeçalho e barra de ações ===== */
+.appbar{background:var(--blue);color:#fff;padding:18px 28px;display:flex;align-items:center;gap:24px}
+.appbar h1{font-family:var(--serif);font-weight:700;font-size:28px;line-height:1.15;margin:0}
+.appbar p{margin:4px 0 0;font-size:14px;font-weight:400;opacity:.95}
+.appbar .brand{margin-left:auto;display:flex;align-items:center;gap:16px;font-family:var(--serif);font-weight:700;font-size:22px;letter-spacing:2px;white-space:nowrap}
+.wave{width:84px;height:30px;stroke:#fff;stroke-width:3;stroke-linecap:round;fill:none}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 28px;border-bottom:1px solid var(--line);background:var(--surf)}
+.btn{border:0;border-radius:6px;padding:9px 16px;font-weight:500;cursor:pointer;min-height:40px}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.secondary{background:var(--sky);color:#062B45}
+.btn.aux{background:var(--aux);color:var(--txt)}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.go{background:var(--ok);color:#fff}
+.btn:hover{filter:brightness(.95)}
+.actions .spacer{flex:1}
+.hint{font-size:13px;color:var(--txt2)}
+body:not(.editing) .edit-only{display:none!important}
+
+.tabs{display:flex;gap:4px;padding:0 28px;border-bottom:1px solid var(--line);background:var(--surf);overflow-x:auto}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px;color:var(--txt2);font-weight:500;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--blue);border-bottom-color:var(--blue)}
+
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;padding:16px 28px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:12px 16px;background:var(--surf)}
+.kpi b{display:block;font-family:var(--serif);font-size:30px;line-height:1.1;color:var(--blue)}
+.kpi span{font-size:13px;color:var(--txt2);font-weight:400}
+
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:0 28px 14px}
+.chip{border:1px solid var(--line);background:var(--surf);color:var(--txt);border-radius:18px;padding:6px 14px;cursor:pointer;font-weight:500;min-height:36px}
+.chip[aria-pressed="true"]{background:var(--c,var(--blue));border-color:var(--c,var(--blue));color:#fff}
+.tools input[type=search],.tools select{border:1px solid var(--line);border-radius:6px;padding:8px 12px;background:var(--surf);color:var(--txt);min-height:38px}
+.tools input[type=search]{min-width:260px}
+.tools label{font-size:13px;color:var(--txt2);font-weight:400}
+
+.view{display:none;padding:8px 28px 32px}
+.view.on{display:block}
+.scroll{overflow-x:auto;padding-bottom:8px}
+
+/* ===== Página imprimível ===== */
+.ppage{background:var(--bg);color:var(--txt)}
+.phead,.pfoot{display:none}
+.phead{background:var(--blue);color:#fff;padding:14px 22px;align-items:center;gap:20px;margin-bottom:18px}
+.phead h2{font-family:var(--serif);font-size:26px;line-height:1.15;margin:0;font-weight:700}
+.phead p{margin:3px 0 0;font-size:13px;font-weight:400}
+.phead .brand{margin-left:auto;font-family:var(--serif);font-weight:700;font-size:20px;letter-spacing:2px}
+.pfoot{background:var(--blue);color:#fff;padding:8px 22px;justify-content:space-between;font-size:12px;font-weight:500;margin-top:18px}
+
+/* ===== Organograma geral ===== */
+.org{display:flex;flex-direction:column;align-items:center;width:max-content;min-width:100%;margin:0 auto}
+.root{position:relative;background:var(--navy);color:#fff;border-radius:10px;padding:14px 36px;text-align:center;margin-bottom:28px}
+.root b{display:block;font-family:var(--serif);font-size:24px;line-height:1.2}
+.root small{font-size:13px;font-weight:400}
+.root::after{content:"";position:absolute;left:50%;top:100%;height:28px;border-left:3px solid var(--navy)}
+.pillars{position:relative;display:grid;grid-template-columns:repeat(var(--n),var(--cw,300px));gap:26px;padding-top:24px}
+.pillars::before{content:"";position:absolute;top:0;left:calc(var(--cw,300px)/2);right:calc(var(--cw,300px)/2);border-top:3px solid var(--navy)}
+.pcol{position:relative}
+.pcol::before{content:"";position:absolute;left:50%;top:-24px;height:24px;border-left:3px solid var(--navy)}
+.pcard{background:var(--c);color:#fff;border-radius:10px;padding:12px 14px;text-align:center}
+.pcard small{display:block;font-size:12px;font-weight:700;letter-spacing:1px}
+.pcard b{display:block;font-family:var(--serif);font-size:19px;line-height:1.2}
+.pcard span{display:block;font-size:12px;font-weight:400;margin-top:3px;opacity:.95}
+
+.tree{position:relative;padding-left:22px;margin-top:14px}
+.tree>.fr{position:relative;margin-top:14px}
+.tree>.fr:first-child{margin-top:0}
+.tree>.fr::before{content:"";position:absolute;left:-13px;top:-14px;height:44px;border-left:2px solid var(--c)}
+.tree>.fr:not(:last-child)::before{height:calc(100% + 14px)}
+.tree>.fr::after{content:"";position:absolute;left:-13px;top:30px;width:13px;border-top:2px solid var(--c)}
+
+/* ===== Frente ===== */
+.fr{--c:var(--blue);background:var(--surf);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.fr-h{background:var(--c);color:#fff;padding:9px 12px;cursor:default;min-height:60px}
+.fr-t{font-family:var(--serif);font-weight:700;font-size:17px;line-height:1.2}
+.fr-o{font-size:12.5px;font-weight:400;margin-top:2px}
+.fr.nova{border:2px dashed var(--c)}
+.fr.nova .fr-h{background:var(--surf);color:var(--c)}
+.fr.nova .fr-o{color:var(--txt2)}
+.tag{display:inline-block;background:var(--c);color:#fff;border-radius:4px;padding:1px 6px;font-size:10.5px;font-weight:700;letter-spacing:.5px;margin-left:4px;vertical-align:1px}
+.steps{list-style:none;margin:0;padding:8px 10px 10px;position:relative}
+.steps::before{content:"";position:absolute;left:20px;top:18px;bottom:18px;border-left:2px solid var(--c);opacity:.35}
+.steps li{position:relative;display:flex;gap:8px;align-items:flex-start;padding:3px 0}
+.n{flex:0 0 20px;height:20px;border-radius:50%;background:var(--c);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;position:relative;z-index:1}
+.st{flex:1;font-size:13.5px;line-height:1.35;color:var(--txt)}
+.rm{border:0;background:none;color:var(--danger);cursor:pointer;font-size:16px;line-height:1;padding:0 4px;display:none}
+body.editing .rm{display:inline-block}
+.add{margin:0 10px 10px;border:1px dashed var(--c);background:none;color:var(--c);border-radius:6px;padding:6px 10px;cursor:pointer;font-weight:500;display:none}
+body.editing .add{display:inline-block}
+body.editing [contenteditable="true"]{outline:1px dashed var(--sky);outline-offset:1px;border-radius:3px;cursor:text}
+.hit{background:#FFF3B0;color:#333;border-radius:3px}
+.dim{opacity:.28}
+
+/* ===== Por pilar ===== */
+.porg .pillar-root{position:relative;background:var(--surf);border:2px solid var(--c);color:var(--c);border-radius:10px;padding:12px 30px;text-align:center;margin-bottom:28px}
+.porg .pillar-root b{display:block;font-family:var(--serif);font-size:24px;line-height:1.2}
+.porg .pillar-root small{font-size:13px;color:var(--txt2);font-weight:400}
+.porg .pillar-root::after{content:"";position:absolute;left:50%;top:100%;height:28px;border-left:3px solid var(--c)}
+.porg .pillars::before{border-top-color:var(--c)}
+.porg .pcol::before{border-left-color:var(--c)}
+.cards .steps{padding:10px 0 0;background:transparent}
+.cards .steps::before{left:22px;opacity:1}
+.cards .steps li{background:var(--surf);border:1px solid var(--line);border-radius:8px;padding:8px 10px 8px 12px;margin-bottom:8px;align-items:center}
+.cards .steps li .n{flex-basis:22px;height:22px;margin:0}
+.cards .st{font-size:14.5px}
+.fr.cards{border:0;background:transparent;overflow:visible}
+.fr.cards .fr-h{border-radius:10px;border:2px solid var(--c)}
+.fr.cards.nova .fr-h{border-style:dashed}
+.fr.cards.nova .steps li{border-style:dashed;border-color:var(--c)}
+
+/* ===== Calendário ===== */
+.cal-wrap{width:max-content;min-width:100%}
+.cal{position:relative;display:grid;grid-template-columns:repeat(9,210px);gap:14px}
+.cal::before{content:"";position:absolute;left:0;right:0;top:22px;border-top:3px solid var(--navy)}
+.day{position:relative;display:flex;flex-direction:column;align-items:center}
+.day .d{width:46px;height:46px;border-radius:50%;background:var(--c);color:#fff;border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;position:relative;z-index:1}
+.day .card{margin-top:12px;border:1px solid var(--line);border-radius:10px;background:var(--surf);padding:12px 14px;width:100%;flex:1}
+.day .card h3{margin:0 0 6px;font-family:var(--serif);font-size:18px;color:var(--c)}
+.day ul{margin:0;padding-left:16px;font-size:13.5px}
+.day li{margin:2px 0}
+.legal{margin-top:22px;border:2px solid var(--wine);border-radius:10px;padding:14px 18px;background:var(--surf)}
+.legal h3{margin:0 0 8px;font-family:var(--serif);color:var(--wine);font-size:20px}
+.legal ul{margin:0;padding-left:18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:28px;font-size:13.5px;font-weight:400}
+.note{font-size:13px;color:var(--txt2);margin:10px 0 0}
+
+footer.site{border-top:1px solid var(--line);padding:14px 28px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--txt2)}
+
+/* ===== Diálogos ===== */
+dialog{border:1px solid var(--line);border-radius:10px;padding:0;max-width:640px;width:calc(100% - 32px);background:var(--surf);color:var(--txt)}
+dialog::backdrop{background:rgba(0,40,70,.35)}
+.dlg-h{background:var(--blue);color:#fff;padding:14px 20px;font-family:var(--serif);font-size:20px;font-weight:700}
+.dlg-b{padding:16px 20px}
+.dlg-f{padding:12px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line)}
+fieldset{border:1px solid var(--line);border-radius:8px;margin:0 0 12px;padding:10px 14px}
+legend{font-weight:500;padding:0 6px;color:var(--thtxt)}
+.opts{display:flex;flex-wrap:wrap;gap:8px 18px}
+.opts label{display:flex;gap:6px;align-items:center;font-weight:400;cursor:pointer;min-height:32px}
+.det-steps{margin:10px 0 0;padding-left:0;list-style:none}
+.det-steps li{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+.toast{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--navy);color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.appbar .brand .wave{display:none}.appbar h1{font-size:22px}}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+
+/* ===== Impressão ===== */
+.print-only{display:none}
+body.printing .print-only{display:block}
+body.printing .view{display:block!important;padding:0}
+body.printing .ppage{display:none;width:max-content;min-width:0;break-after:page;page-break-after:always;background:#fff;color:#333}
+body.printing .ppage.last{break-after:auto;page-break-after:auto}
+body.printing .phead,body.printing .pfoot{display:flex}
+body.printing.pr-mapa #pp-mapa,
+body.printing.pr-cal #pp-cal,
+body.printing.pr-pilares #pp-pilares .ppage,
+body.printing.pr-tudo #pp-mapa,
+body.printing.pr-tudo #pp-cal,
+body.printing.pr-tudo #pp-pilares .ppage{display:block}
+body.printing .scroll{overflow:visible}
+/* Mapa completo impresso: colunas largas = passos em 1 linha = folha bem aproveitada */
+body.printing #pp-mapa .pillars{--cw:450px !important;gap:22px}
+body.printing #pp-mapa .root{margin-bottom:22px;padding:10px 30px}
+body.printing #pp-mapa .root::after{height:22px}
+body.printing #pp-mapa .pillars{padding-top:20px}
+body.printing #pp-mapa .pcol::before{top:-20px;height:20px}
+body.printing #pp-mapa .pcard{padding:8px 12px}
+body.printing #pp-mapa .pcard b{font-size:21px}
+body.printing #pp-mapa .tree{margin-top:10px}
+body.printing #pp-mapa .tree>.fr{margin-top:10px}
+body.printing #pp-mapa .tree>.fr::before{top:-10px;height:34px}
+body.printing #pp-mapa .tree>.fr:not(:last-child)::before{height:calc(100% + 10px)}
+body.printing #pp-mapa .tree>.fr::after{top:24px}
+body.printing #pp-mapa .fr-h{min-height:0;padding:6px 12px;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;column-gap:10px}
+body.printing #pp-mapa .fr-t{font-size:18px}
+body.printing #pp-mapa .fr-o{margin-top:0;white-space:nowrap}
+body.printing #pp-mapa .steps{padding:5px 10px 7px}
+body.printing #pp-mapa .steps li{padding:1px 0}
+body.printing #pp-mapa .st{font-size:14.5px;line-height:1.3}
+body.printing #pp-mapa .phead{margin-bottom:12px}
+body.printing #pp-mapa .pfoot{margin-top:12px}
+body.printing .dim{opacity:1}
+body.printing .hit{background:none}
+body.printing .add,body.printing .rm{display:none!important}
+body.printing [contenteditable]{outline:none!important}
+@media print{
+  :root{--txt:#333333;--txt2:#646464;--line:#CCCCCC;--bg:#ffffff;--surf:#ffffff;--thead:#E8F3FA;--thtxt:#003C64;padding:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff}
+  .appbar,.actions,.tabs,.kpis,.tools,footer.site,.toast,dialog,.screen-only{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div>
+    <h1>Mapa de Atividades do Departamento Pessoal</h1>
+    <p>Todas as frentes do DP Sonova e seus passos a passo, para gestão à vista</p>
+  </div>
+  <div class="brand">
+    <svg class="wave" viewBox="0 0 120 40" aria-hidden="true"><path d="M4 20 L4 20 M14 14 L14 26 M24 8 L24 32 M34 16 L34 24 M44 4 L44 36 M54 12 L54 28 M64 18 L64 22 M74 6 L74 34 M84 14 L84 26 M94 10 L94 30 M104 17 L104 23 M114 20 L114 20"/></svg>
+    SONOVA · DP
+  </div>
+</header>
+
+<div class="actions">
+  <button class="btn primary" id="btnPrint" type="button">Imprimir</button>
+  <button class="btn secondary" id="btnEdit" type="button" aria-pressed="false">Editar mapa</button>
+  <button class="btn go edit-only" id="btnDone" type="button">Concluir edição</button>
+  <button class="btn danger edit-only" id="btnReset" type="button">Restaurar original</button>
+  <span class="spacer"></span>
+  <span class="hint" id="saveHint">Clique duas vezes em uma frente para ver o detalhe.</span>
+</div>
+
+<nav class="tabs" role="tablist" aria-label="Visões">
+  <button class="tab" role="tab" data-view="mapa" aria-selected="true">Mapa completo</button>
+  <button class="tab" role="tab" data-view="pilar" aria-selected="false">Por pilar</button>
+  <button class="tab" role="tab" data-view="cal" aria-selected="false">Calendário do mês</button>
+</nav>
+
+<section class="kpis" id="kpis" aria-label="Indicadores"></section>
+
+<section class="tools" id="tools">
+  <div id="chips" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+  <label for="q">Buscar passo</label>
+  <input type="search" id="q" placeholder="Ex.: CNAB, eSocial, dobra">
+  <label for="owner">Responsável</label>
+  <select id="owner"></select>
+</section>
+
+<main>
+  <section class="view on" id="view-mapa" role="tabpanel">
+    <div class="scroll">
+      <div class="ppage" id="pp-mapa">
+        <div class="phead"><div><h2>Mapa de Atividades do Departamento Pessoal</h2><p>Todas as frentes e passos · Sonova Brasil</p></div><div class="brand">SONOVA · DP</div></div>
+        <div class="org" id="org"></div>
+        <div class="pfoot"><span>Anderson Souza · Departamento Pessoal · Sonova Brasil</span><span class="pdate"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-pilar" role="tabpanel">
+    <div class="scroll"><div class="ppage screen-pilar" id="pp-pilar-screen"></div></div>
+    <div class="print-only" id="pp-pilares"></div>
+  </section>
+
+  <section class="view" id="view-cal" role="tabpanel">
+    <div class="scroll">
+      <div class="ppage" id="pp-cal">
+        <div class="phead"><div><h2>Calendário do Mês · Rotina do DP</h2><p>Marcos por dia do mês conforme o Gerenciador de atividades</p></div><div class="brand">SONOVA · DP</div></div>
+        <div class="cal-wrap"><div class="cal" id="cal"></div>
+          <div class="legal"><h3>Prazos legais de referência</h3><ul id="legal"></ul></div>
+          <p class="note screen-only">Datas do calendário conforme o Gerenciador. Os prazos legais são referência geral; confira a CCT e o calendário oficial do mês.</p>
+        </div>
+        <div class="pfoot"><span>Anderson Souza · Departamento Pessoal · Sonova Brasil</span><span class="pdate"></span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <span>Anderson Souza · Departamento Pessoal · Sonova Brasil</span>
+  <span>Versão 29/09/2026 · alterações ficam salvas neste navegador</span>
+</footer>
+
+<dialog id="dlgPrint" aria-labelledby="dlgPrintTitle">
+  <div class="dlg-h" id="dlgPrintTitle">Imprimir</div>
+  <div class="dlg-b">
+    <fieldset><legend>O que imprimir</legend><div class="opts">
+      <label><input type="radio" name="alvo" value="mapa" checked> Mapa completo em 1 folha</label>
+      <label><input type="radio" name="alvo" value="pilares"> Um pilar por folha (5 folhas)</label>
+      <label><input type="radio" name="alvo" value="cal"> Calendário do mês</label>
+      <label><input type="radio" name="alvo" value="tudo"> Tudo (7 folhas)</label>
+    </div></fieldset>
+    <fieldset><legend>Papel</legend><div class="opts">
+      <label><input type="radio" name="papel" value="A4"> A4</label>
+      <label><input type="radio" name="papel" value="A3" checked> A3</label>
+      <label><input type="radio" name="papel" value="A2"> A2</label>
+      <label><input type="radio" name="papel" value="A1"> A1</label>
+    </div></fieldset>
+    <fieldset><legend>Orientação</legend><div class="opts">
+      <label><input type="radio" name="ori" value="landscape" checked> Paisagem</label>
+      <label><input type="radio" name="ori" value="portrait"> Retrato</label>
+    </div></fieldset>
+    <p class="hint">Cada folha é ajustada automaticamente ao papel. Na janela de impressão, deixe a escala em "Padrão" e marque "Gráficos de plano de fundo" para sair com as cores.</p>
+  </div>
+  <div class="dlg-f">
+    <button class="btn aux" type="button" id="btnPrintCancel">Cancelar</button>
+    <button class="btn primary" type="button" id="btnPrintGo">Abrir impressão</button>
+  </div>
+</dialog>
+
+<dialog id="dlgDet" aria-labelledby="detTitle">
+  <div class="dlg-h" id="detTitle"></div>
+  <div class="dlg-b" id="detBody"></div>
+  <div class="dlg-f"><button class="btn aux" type="button" id="btnDetClose">Fechar</button></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+var DATA={"macros": {"01": {"name": "Admissão e Integração", "owner": "Eduarda / Jair", "nova": false, "steps": ["Receber carta oferta aceita e aprovação", "Validar CNPJ, filial, CC, cargo e CCT", "Receber e conferir documentos", "Agendar ASO admissional", "Cadastrar no ADP e transmitir eSocial (S-2200)", "Gerar contrato e documentos (DocuSign)", "Solicitar VR, VT, saúde e demais benefícios", "Habilitar ponto, crachá e acessos", "Comunicar o 1º dia e realizar integração", "Montar dossiê e auditar pós-admissão"]}, "04": {"name": "Cadastros e Movimentações", "owner": "Eduarda / Jair", "nova": false, "steps": ["Receber solicitação formal aprovada", "Validar cargo, salário, faixa e CCT", "Lançar alteração salarial, cargo ou jornada", "Processar transferência entre CNPJs", "Atualizar CC, departamento e gestor", "Gerar aditivo (DocuSign)", "Atualizar eSocial / CTPS Digital", "Ajustar benefícios, ponto e acessos", "Comunicar e arquivar evidências"]}, "07": {"name": "Rescisões e Offboarding", "owner": "Eduarda / Jair", "nova": false, "steps": ["Receber desligamento aprovado", "Validar aviso, estabilidade e CCT", "Acionar Porteiro Digital / offboarding", "Fechar ponto, HE e variáveis", "Agendar ASO demissional", "Calcular rescisão no ADP", "Conferência independente", "Gerar CNAB e pagar (até 10 dias)", "eSocial S-2299 e FGTS rescisório", "Entregar TRCT e documentos", "Cancelar benefícios, acessos e equipamentos", "Rescisão complementar de comissões"]}, "19": {"name": "Estágio, Aprendiz e Terceiros", "owner": "Responsável: a definir", "nova": true, "steps": ["Controlar contratos de estágio a vencer", "Renovar ou encerrar TCE (Cia Estágio)", "Lançar bolsa-estágio e benefícios", "Controlar cota de aprendiz", "Controlar cota PCD", "Conferir faturamento de terceiros (Soulan)", "Validar contratos terceiros / temporários", "Relatório anual de aprendizes"]}, "03": {"name": "Ponto e Jornada", "owner": "Jair / Jameson", "nova": false, "steps": ["Coletar marcações de todas as unidades", "Tratar marcações ímpares, faltas e atrasos", "Enviar divergências aos gestores (RPA)", "Receber justificativas e atestados", "Lançar abonos, folgas e ajustes", "Validar HE e banco de horas (CCT)", "Fechamento prévio do ponto", "Conferir verbas geradas para a folha", "Encerrar período e bloquear alterações"]}, "14": {"name": "Quinzenal (Adiantamento)", "owner": "Jair / Anderson", "nova": true, "steps": ["Validar optantes pelo quinzenal", "Conferir admitidos, afastados e desligados", "Gerar quinzenal Sonova", "Gerar quinzenal AB e AR", "Gerar quinzenal Uniaudio, Conect e AudioClin", "Conferir valores e aprovar", "Gerar CNAB e pagar", "Disponibilizar recibos"]}, "12": {"name": "Folha Mensal", "owner": "Jair / Anderson", "nova": false, "steps": ["Publicar calendário e cortes da competência", "Abrir competência e validar parâmetros", "Receber inputs pelo canal único", "Lançar variáveis (comissão, copay, VR, VT…)", "Integrar ponto, férias e afastamentos", "Executar cálculo prévio", "Auditar outliers e variações", "Aprovar no SSA, Pipefy e Diretoria", "Gerar CNAB e subir no Finnet", "Pagar e disponibilizar holerites", "Contabilizar e entregar folha por área"]}, "16": {"name": "Encargos e Guias", "owner": "Jair / Anderson", "nova": true, "steps": ["Fechar eSocial e validar totalizadores", "Conferir INSS por CNPJ (DCTFWeb)", "Conferir FGTS por CNPJ (FGTS Digital)", "Conferir IRRF e bases tributáveis", "Baixar eConsignado e recolher com FGTS", "Emitir guias e DARFs", "Abrir pagamento e aprovar", "Pagar até o vencimento", "Arquivar guias e comprovantes"]}, "15": {"name": "13º Salário", "owner": "Responsável: a definir", "nova": true, "steps": ["Programar calendário do 13º", "Conferir base, médias e antecipações", "Calcular 1ª parcela (até 30/11)", "Gerar CNAB e pagar 1ª parcela", "Calcular 2ª parcela (até 20/12)", "Auditar outliers e variáveis", "Gerar CNAB e pagar 2ª parcela", "Recolher encargos e fechar eSocial", "Conferir provisão de 13º"]}, "02": {"name": "Férias", "owner": "Jair / Anderson", "nova": false, "steps": ["Monitorar vencimentos (aquisitivo e concessivo)", "Receber programação aprovada pelo gestor", "Validar saldo, abono, fracionamento e CCT", "Lançar férias no ADP (template)", "Calcular férias no ADP", "Cruzar as férias do mês", "Verificação de dobra", "Conferir médias, 1/3, abono e descontos", "Gerar CNAB", "Pagar (até 2 dias antes do início)", "Gerar aviso e recibo", "Enviar ao colaborador (RPA) e arquivar"]}, "17": {"name": "Afastamentos e Retornos", "owner": "Jair / Anderson", "nova": true, "steps": ["Receber atestado ou licença", "Validar e lançar no ADP", "Até 15 dias: pago pela empresa", "A partir do 16º dia: INSS e eSocial (S-2230)", "Controlar estabilidade e data de retorno", "Conferência mensal de afastados", "Agendar ASO de retorno", "Processar retorno e reativar benefícios", "Arquivar evidências"]}, "10": {"name": "Remuneração, PLR e Variáveis", "owner": "Anderson", "nova": false, "steps": ["Receber bases de metas e resultados", "Validar CPF, matrícula e elegibilidade", "Calcular comissões e DSR", "Calcular PLR, VCC, bônus e premiações", "Validar natureza da verba e incidências", "Obter aprovações internas e globais", "Gerar termos e cartas (DocuSign)", "Lançar valores no ADP", "Conferir na prévia e outliers", "Complementar de desligados e conciliação"]}, "18": {"name": "Sindical e CCT", "owner": "Responsável: a definir", "nova": true, "steps": ["Monitorar data-base por sindicato", "Receber e analisar a nova CCT", "Montar planilha de aplicação da CCT", "Aplicar reajuste e pisos no ADP", "Calcular e pagar retroativo", "Atualizar benefícios previstos na CCT", "Contribuição sindical e cartas de oposição", "Validar cartas sindicais", "Arquivar CCT vigente na matriz"]}, "06": {"name": "Benefícios", "owner": "Sabrina / Ana", "nova": false, "steps": ["Consolidar movimentações do mês", "Validar elegibilidade por empresa e CCT", "Comprar VR/VA (Alelo / iFood)", "Comprar VT (RB Ticket)", "Atualizar Previdência, Univers e Seguro de Vida", "Atualizar Petlove, Wellhub e Sonova Cuida", "Processar auxílio-creche e reembolsos", "Lançar descontos na folha", "Conferir fatura × base ativa", "Rateio, Pipefy/SSA e pagamento"]}, "09": {"name": "Saúde, Odonto e Copay", "owner": "Sabrina / Ana", "nova": false, "steps": ["Consolidar admissões, desligamentos e dependentes", "Enviar movimentação à WTW / operadora", "Conferir inclusões, exclusões e vigências", "Conferir fatura médica e odontológica", "Receber base de coparticipação", "Bloquear desconto de desligados e afastados", "Lançar copay na folha (chamado ADP)", "Ratear custos por CDC / FTE", "Pagar e conciliar fatura × folha"]}, "08": {"name": "SST e Saúde Ocupacional", "owner": "Jameson / Sabrina", "nova": false, "steps": ["Manter PGR e PCMSO vigentes por CNPJ", "Gerir ASO admissional, periódico e demissional", "Controlar acidentes e CAT", "Controlar CIPA e designados", "Controlar EPI, treinamentos e certificados", "Avaliação psicossocial NR-1", "Transmitir eventos SST no eSocial", "Indicadores e evidências para auditoria"]}, "13": {"name": "Lançamento de Fornecedores", "owner": "Ana / Anderson", "nova": false, "steps": ["Receber NF / boleto pelo canal oficial", "Validar CNPJ, competência, valor e vencimento", "Classificar critério de rateio", "Lançar no SSA em até 24h", "Executar rateio por FTE / CDC", "Importar no Pipefy e aprovar na alçada", "Cobrar vencimentos 01 · 05 · 10 · 15 · 20", "Conciliar boletos, NFs e pagamentos", "Arquivar dossiê e medir SLA"]}, "05": {"name": "Atendimento RH e Chamados", "owner": "Ana / Sabrina", "nova": false, "steps": ["Receber chamado pelo canal oficial (AskHR)", "Classificar tema, urgência e impacto", "Aplicar SLA conforme o tipo", "Consultar histórico e base de conhecimento", "Responder ou encaminhar ao especialista", "Escalar risco legal ou de pagamento", "Validar solução e encerrar chamado", "Atualizar FAQ quando recorrente", "Analisar volume, SLA e causa-raiz"]}, "20": {"name": "Obrigações Anuais e Compliance", "owner": "Responsável: a definir", "nova": true, "steps": ["Informe de Rendimentos (fevereiro)", "Conferência anual de IRRF", "Relatório de Igualdade Salarial (semestral)", "Consultar e contestar o FAP", "Renovar certificado digital (ICP)", "Auditoria RDC 665 e revisão de POPs", "Trocar senhas ADP a cada 60 dias", "Prestação de contas Alelo e Caju", "Organizar evidências para auditorias"]}, "21": {"name": "Indicadores, FTE e Budget", "owner": "Responsável: a definir", "nova": true, "steps": ["Entregar FTE (AC, WS e Todos)", "FTE com salário e variável (Diretoria)", "Entregar folha em Excel por área", "Relatório de provisões de férias e 13º", "Analisar variação de provisão", "Cruzar Sonnet HC × ADP", "Atualizar BI Turnover e HC", "Relatório de movimentações regulatórias", "Budget anual de folha"]}, "11": {"name": "Projetos e Implantações", "owner": "Anderson / Ana", "nova": false, "steps": ["Registrar demanda (ex.: G|AS, NewCo)", "Definir escopo, entregáveis e RACI", "Levantar AS IS, riscos e requisitos", "Desenhar TO BE e controles", "Planejar cronograma e marcos", "Preparar base, de-para e parametrização", "Testes, UAT e folha paralela", "Cutover e go-live", "Hypercare e aceite formal", "Atualizar DP 360 e lições aprendidas"]}}, "pillars": [{"id": "A", "name": "Ciclo de Vida do Colaborador", "desc": "Da entrada à saída: admissão, movimentações e desligamento", "color": "#0083CA", "codes": ["01", "04", "07", "19"]}, {"id": "B", "name": "Folha e Encargos", "desc": "Rotina mensal de cálculo, pagamento e recolhimentos", "color": "#003C64", "codes": ["03", "14", "12", "16", "15"]}, {"id": "C", "name": "Férias, Afastamentos e Remuneração", "desc": "Tempo fora, variáveis e regras sindicais", "color": "#005A64", "codes": ["02", "17", "10", "18"]}, {"id": "D", "name": "Benefícios, Saúde e Fornecedores", "desc": "Compras, faturas, saúde ocupacional e pagamentos", "color": "#7D0041", "codes": ["06", "09", "08", "13"]}, {"id": "E", "name": "Gestão, Compliance e Projetos", "desc": "Atendimento, obrigações legais, indicadores e implantações", "color": "#8C321E", "codes": ["05", "20", "21", "11"]}], "days": [{"d": "05", "items": ["Envio de avisos e recibos de férias (RPA)", "Envio de homologações", "Rescisões complementares", "Fornecedores com vencimento dia 05"]}, {"d": "06", "items": ["INSS, IRRF e FGTS por CNPJ", "eConsignado", "Entregar FTE (AC, WS, Todos, Diretoria)", "Base Seguro de Vida (MetLife)", "Faturamento PGBL / VGBL", "Baixas Wellhub, Petlove e Univers"]}, {"d": "11", "items": ["Quinzenal Sonova", "Quinzenal AB e AR", "Quinzenal Uniaudio, Conect e AudioClin", "Previdência Privada: admissões", "Expense Report Payroll"]}, {"d": "12", "items": ["Lançar férias via template", "TRCT complementar de comissões", "Fechar o ponto", "Adiantamento do 13º (sazonal)"]}, {"d": "13", "items": ["Validar FGTS, INSS, IRRF e eConsignado", "Lançamentos diversos", "Boleto da Previdência Privada"]}, {"d": "19", "items": ["Enviar folha Uniaudio, Conect e AudioClin", "Enviar folha AB e AR", "Enviar folha Sonova", "Fechamento geral Sonova"]}, {"d": "20", "items": ["Lançar variáveis (comissões, copay, VR, VT, creche, odonto…)", "Comprar VR e VT", "Calcular férias gerais e pagar", "Fechamento AB, AR, AudioClin, Conect e Uniaudio"]}, {"d": "22", "items": ["Lançamentos G|AS: combustível, VT, VR, premiação e faltas"]}, {"d": "25", "items": ["Enviar folhas e Excel de verbas AudioClin"]}], "legal": ["Salário: até o 5º dia útil do mês seguinte", "eSocial periódicos: até o dia 15", "INSS (DCTFWeb), IRRF e FGTS Digital: até o dia 20, antecipando se não for dia útil", "Férias: aviso 30 dias antes e pagamento até 2 dias antes do início", "Dobra: férias concedidas após o período concessivo", "Rescisão: pagamento em até 10 dias do término", "13º: 1ª parcela até 30/11 e 2ª parcela até 20/12", "Afastamento: 15 primeiros dias pela empresa; do 16º em diante, INSS", "Informe de Rendimentos: até o último dia útil de fevereiro"]};
+var KEY="dp-mapa-sonova-v1", PKEY="dp-mapa-sonova-print-v1";
+var PAPER={A4:[210,297],A3:[297,420],A2:[420,594],A1:[594,841]};
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+function load(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){toast("Não foi possível salvar neste navegador.");return false;}}
+
+var state=load(KEY)||clone(DATA.macros);
+Object.keys(DATA.macros).forEach(function(c){ if(!state[c]) state[c]=clone(DATA.macros[c]); });
+var ui={view:"mapa",pill:{},pilarSel:"A",q:"",owner:""};
+DATA.pillars.forEach(function(p){ui.pill[p.id]=true;});
+var printCfg=load(PKEY)||{alvo:"mapa",papel:"A3",ori:"landscape"};
+var editing=false;
+
+var $=function(s){return document.querySelector(s);};
+function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove("show");},2200);}
+var today=new Date();
+document.querySelectorAll(".pdate").forEach(function(e){e.textContent="Gestão à vista · impresso em "+today.toLocaleDateString("pt-BR");});
+
+function pillarOf(code){for(var i=0;i<DATA.pillars.length;i++){if(DATA.pillars[i].codes.indexOf(code)>=0)return DATA.pillars[i];}return null;}
+function norm(s){return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();}
+function hl(text){
+  var t=esc(text); if(!ui.q||editing) return t;
+  var nq=norm(ui.q), nt=norm(text), i=nt.indexOf(nq); if(i<0) return t;
+  return esc(text.slice(0,i))+'<mark class="hit">'+esc(text.slice(i,i+ui.q.length))+'</mark>'+esc(text.slice(i+ui.q.length));
+}
+function frMatches(m){
+  var okOwner=!ui.owner||norm(m.owner).indexOf(norm(ui.owner))>=0;
+  var okQ=!ui.q||norm(m.name).indexOf(norm(ui.q))>=0||m.steps.some(function(s){return norm(s).indexOf(norm(ui.q))>=0;});
+  return okOwner&&okQ;
+}
+function ce(){return editing?' contenteditable="true" spellcheck="true"':'';}
+
+function frenteHTML(code,color,variant){
+  var m=state[code], n=m.steps.length, dim=frMatches(m)?"":" dim";
+  var steps=m.steps.map(function(s,i){
+    return '<li data-i="'+i+'"><span class="n">'+(i+1)+'</span><span class="st" data-edit="step"'+ce()+'>'+hl(s)+'</span><button class="rm" type="button" aria-label="Remover passo '+(i+1)+'">×</button></li>';
+  }).join("");
+  return '<article class="fr'+(m.nova?" nova":"")+(variant?" "+variant:"")+dim+'" style="--c:'+color+'" data-code="'+code+'">'+
+    '<header class="fr-h"><div class="fr-t">'+code+' · <span data-edit="name"'+ce()+'>'+hl(m.name)+'</span></div>'+
+    '<div class="fr-o"><span data-edit="owner"'+ce()+'>'+esc(m.owner)+'</span> · '+n+' passos'+(m.nova?'<span class="tag">NOVA · VALIDAR</span>':'')+'</div></header>'+
+    '<ol class="steps">'+steps+'</ol><button class="add" type="button">+ passo</button></article>';
+}
+
+function renderKPIs(){
+  var codes=Object.keys(state), steps=0, novas=0;
+  codes.forEach(function(c){steps+=state[c].steps.length; if(state[c].nova) novas++;});
+  var k=[[codes.length,"frentes macro"],[steps,"passos mapeados"],[novas,"frentes novas a validar"],[DATA.pillars.length,"pilares"],[6,"CNPJs no cluster"]];
+  $("#kpis").innerHTML=k.map(function(x){return '<div class="kpi"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>';}).join("");
+}
+function renderChips(){
+  var h="";
+  if(ui.view==="pilar"){
+    h=DATA.pillars.map(function(p){return '<button class="chip" type="button" data-pilar="'+p.id+'" style="--c:'+p.color+'" aria-pressed="'+(ui.pilarSel===p.id)+'">Pilar '+p.id+' · '+esc(p.name)+'</button>';}).join("");
+  } else {
+    h=DATA.pillars.map(function(p){return '<button class="chip" type="button" data-pill="'+p.id+'" style="--c:'+p.color+'" aria-pressed="'+(!!ui.pill[p.id])+'">'+p.id+' · '+esc(p.name)+'</button>';}).join("");
+  }
+  $("#chips").innerHTML=h;
+  $("#tools").style.display=ui.view==="cal"?"none":"flex";
+}
+function renderOwners(){
+  var set={};
+  Object.keys(state).forEach(function(c){state[c].owner.split("/").forEach(function(o){o=o.trim(); if(o&&!/definir/i.test(o)) set[o]=1;});});
+  var opts=['<option value="">Todos</option>'].concat(Object.keys(set).sort().map(function(o){return '<option'+(ui.owner===o?' selected':'')+'>'+esc(o)+'</option>';}));
+  opts.push('<option value="definir"'+(ui.owner==="definir"?' selected':'')+'>A definir</option>');
+  $("#owner").innerHTML=opts.join("");
+}
+function renderMapa(){
+  var ps=DATA.pillars.filter(function(p){return ui.pill[p.id];});
+  var cols=ps.map(function(p){
+    return '<section class="pcol" style="--c:'+p.color+'"><div class="pcard"><small>Pilar '+p.id+'</small><b>'+esc(p.name)+'</b><span>'+esc(p.desc)+'</span></div>'+
+      '<div class="tree">'+p.codes.map(function(c){return frenteHTML(c,p.color,"");}).join("")+'</div></section>';
+  }).join("");
+  $("#org").innerHTML='<div class="root"><b>Departamento Pessoal · Sonova Brasil</b><small>Sonova · AB · AR · Uniaudio · Conect · AudioClin</small></div>'+
+    (ps.length?'<div class="pillars" style="--n:'+ps.length+';--cw:300px">'+cols+'</div>':'<p class="hint">Selecione ao menos um pilar acima.</p>');
+}
+function pilarPage(p){
+  var n=p.codes.length;
+  return '<div class="phead"><div><h2>Mapa de Atividades do DP · Pilar '+p.id+'</h2><p>'+esc(p.desc)+'</p></div><div class="brand">SONOVA · DP</div></div>'+
+    '<div class="org porg" style="--c:'+p.color+'"><div class="pillar-root"><b>Pilar '+p.id+' · '+esc(p.name)+'</b><small>'+esc(p.desc)+'</small></div>'+
+    '<div class="pillars" style="--n:'+n+';--cw:290px">'+p.codes.map(function(c){return '<section class="pcol">'+frenteHTML(c,p.color,"cards")+'</section>';}).join("")+'</div></div>'+
+    '<div class="pfoot"><span>Anderson Souza · Departamento Pessoal · Sonova Brasil</span><span>Gestão à vista · impresso em '+today.toLocaleDateString("pt-BR")+'</span></div>';
+}
+function renderPilar(){
+  var p=DATA.pillars.filter(function(x){return x.id===ui.pilarSel;})[0]||DATA.pillars[0];
+  $("#pp-pilar-screen").innerHTML=pilarPage(p);
+  $("#pp-pilares").innerHTML=DATA.pillars.map(function(x){return '<div class="ppage">'+pilarPage(x)+'</div>';}).join("");
+}
+function renderCal(){
+  var cols=["#0083CA","#003C64"];
+  $("#cal").innerHTML=DATA.days.map(function(d,i){
+    return '<div class="day" style="--c:'+cols[i%2]+'"><div class="d">'+d.d+'</div><div class="card"><h3>Dia '+d.d+'</h3><ul>'+d.items.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div></div>';
+  }).join("");
+  $("#legal").innerHTML=DATA.legal.map(function(x){return '<li>'+esc(x)+'</li>';}).join("");
+}
+function renderAll(){renderKPIs();renderChips();renderOwners();renderMapa();renderPilar();renderCal();}
+
+/* ===== Abas e filtros ===== */
+document.querySelectorAll(".tab").forEach(function(t){
+  t.addEventListener("click",function(){
+    ui.view=t.dataset.view;
+    document.querySelectorAll(".tab").forEach(function(x){x.setAttribute("aria-selected",x===t?"true":"false");});
+    document.querySelectorAll(".view").forEach(function(v){v.classList.toggle("on",v.id==="view-"+ui.view);});
+    renderChips();
+  });
+});
+$("#chips").addEventListener("click",function(e){
+  var b=e.target.closest(".chip"); if(!b) return;
+  if(b.dataset.pilar){ui.pilarSel=b.dataset.pilar;renderChips();renderPilar();}
+  else{ui.pill[b.dataset.pill]=!ui.pill[b.dataset.pill];renderChips();renderMapa();}
+});
+$("#q").addEventListener("input",function(){ui.q=this.value.trim();renderMapa();renderPilar();});
+$("#owner").addEventListener("change",function(){ui.owner=this.value;renderMapa();renderPilar();});
+
+/* ===== Edição ===== */
+function setEditing(on){
+  editing=on; document.body.classList.toggle("editing",on);
+  $("#btnEdit").setAttribute("aria-pressed",on?"true":"false");
+  $("#saveHint").textContent=on?"Clique no texto para editar. As alterações ficam salvas neste navegador.":"Clique duas vezes em uma frente para ver o detalhe.";
+  renderMapa();renderPilar();
+}
+$("#btnEdit").addEventListener("click",function(){setEditing(!editing);});
+$("#btnDone").addEventListener("click",function(){setEditing(false);renderOwners();toast("Edição concluída e salva.");});
+$("#btnReset").addEventListener("click",function(){
+  if(!confirm("Restaurar o mapa original? Suas edições neste navegador serão descartadas.")) return;
+  try{localStorage.removeItem(KEY);}catch(e){}
+  state=clone(DATA.macros); renderAll(); toast("Mapa original restaurado.");
+});
+document.addEventListener("focusout",function(e){
+  var el=e.target; if(!editing||!el.matches||!el.matches("[data-edit]")) return;
+  var fr=el.closest("[data-code]"); if(!fr) return;
+  var m=state[fr.dataset.code], v=el.textContent.replace(/\s+/g," ").trim(), k=el.dataset.edit;
+  if(k==="step"){var i=+el.closest("li").dataset.i; if(v) m.steps[i]=v;}
+  else if(k==="name"){if(v) m.name=v;}
+  else if(k==="owner"){m.owner=v||"Responsável: a definir";}
+  if(save(KEY,state)){renderKPIs();}
+});
+document.addEventListener("keydown",function(e){
+  if(editing&&e.key==="Enter"&&e.target.matches&&e.target.matches("[data-edit]")){e.preventDefault();e.target.blur();}
+});
+document.addEventListener("click",function(e){
+  var add=e.target.closest(".add"), rm=e.target.closest(".rm");
+  if(!editing||(!add&&!rm)) return;
+  var code=e.target.closest("[data-code]").dataset.code, m=state[code];
+  if(add){m.steps.push("Novo passo");}
+  if(rm){var i=+rm.closest("li").dataset.i; if(!confirm('Remover o passo "'+m.steps[i]+'"?')) return; m.steps.splice(i,1);}
+  save(KEY,state); renderKPIs(); renderMapa(); renderPilar();
+  if(add){var sel=document.querySelector('.view.on [data-code="'+code+'"] .steps li:last-child .st'); if(sel){sel.focus();document.getSelection().selectAllChildren(sel);}}
+});
+
+/* ===== Detalhe (duplo clique) ===== */
+document.addEventListener("dblclick",function(e){
+  if(editing) return;
+  var fr=e.target.closest(".fr"); if(!fr) return;
+  var code=fr.dataset.code, m=state[code], p=pillarOf(code);
+  $("#detTitle").textContent=code+" · "+m.name;
+  $("#detBody").innerHTML='<p><b>Pilar:</b> '+p.id+' · '+esc(p.name)+'<br><b>Responsável:</b> '+esc(m.owner)+'<br><b>Passos:</b> '+m.steps.length+
+    (m.nova?'<br><b>Situação:</b> frente nova identificada nos seus controles; ainda não existe no DP 360. Validar responsável e passos.':'<br><b>Situação:</b> frente mapeada no DP 360.')+'</p>'+
+    '<ol class="det-steps">'+m.steps.map(function(s,i){return '<li><span class="n" style="background:'+p.color+'">'+(i+1)+'</span><span>'+esc(s)+'</span></li>';}).join("")+'</ol>';
+  $("#dlgDet").showModal();
+});
+$("#btnDetClose").addEventListener("click",function(){$("#dlgDet").close();});
+
+/* ===== Impressão ===== */
+function setRadio(name,val){var r=document.querySelector('input[name="'+name+'"][value="'+val+'"]'); if(r) r.checked=true;}
+function readRadio(name){var r=document.querySelector('input[name="'+name+'"]:checked'); return r?r.value:null;}
+$("#btnPrint").addEventListener("click",function(){
+  var alvo=ui.view==="cal"?"cal":(ui.view==="pilar"?"pilares":(printCfg.alvo==="tudo"?"tudo":"mapa"));
+  setRadio("alvo",alvo);setRadio("papel",printCfg.papel);setRadio("ori",printCfg.ori);
+  $("#dlgPrint").showModal();
+});
+$("#btnPrintCancel").addEventListener("click",function(){$("#dlgPrint").close();});
+$("#btnPrintGo").addEventListener("click",function(){
+  printCfg={alvo:readRadio("alvo"),papel:readRadio("papel"),ori:readRadio("ori")};
+  save(PKEY,printCfg); $("#dlgPrint").close();
+  setTimeout(function(){
+    try{window.print();}catch(err){toast("Use Ctrl+P para abrir a impressão.");}
+  },60);
+});
+var prepared=false;
+function preparePrint(){
+  if(prepared) return; prepared=true;
+  var cfg=printCfg, dims=PAPER[cfg.papel]||PAPER.A3;
+  var wmm=cfg.ori==="landscape"?dims[1]:dims[0], hmm=cfg.ori==="landscape"?dims[0]:dims[1];
+  $("#pagestyle").textContent="@page{size:"+cfg.papel+" "+cfg.ori+";margin:8mm}";
+  document.body.classList.add("printing","pr-"+cfg.alvo);
+  var pw=(wmm-16)*96/25.4, ph=(hmm-16)*96/25.4*0.965;
+  var pages=Array.prototype.filter.call(document.querySelectorAll(".ppage"),function(el){return el.offsetParent!==null||getComputedStyle(el).display!=="none";});
+  pages=pages.filter(function(el){return getComputedStyle(el).display!=="none";});
+  pages.forEach(function(el,i){
+    el.classList.toggle("last",i===pages.length-1);
+    el.style.zoom=1;
+    var w=el.scrollWidth, h=el.scrollHeight;
+    var z=Math.min(pw/w, ph/h, 3);
+    el.style.zoom=z.toFixed(4);
+  });
+}
+function cleanupPrint(){
+  prepared=false;
+  document.body.classList.remove("printing","pr-mapa","pr-pilares","pr-cal","pr-tudo");
+  document.querySelectorAll(".ppage").forEach(function(el){el.style.zoom="";el.classList.remove("last");});
+}
+window.addEventListener("beforeprint",preparePrint);
+window.addEventListener("afterprint",cleanupPrint);
+
+renderAll();
+})();
+</script>
+</body>
+</html>
